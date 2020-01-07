@@ -13,7 +13,7 @@ public class EventData {
     private static final Map<Integer, Event> events = new HashMap<>();
 
     // Get all events
-    // Collection is an interface that extends the Iterable interface
+    // Note: built-in Collection is an interface that extends the built-in Iterable interface
     public static Collection<Event> getAll() {
         return events.values();
     }

@@ -2,10 +2,13 @@ package org.launchcode.codingevents.controllers;
 
 import org.launchcode.codingevents.data.EventData;
 import org.launchcode.codingevents.models.Event;
+import org.launchcode.codingevents.models.EventType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,12 +26,19 @@ public class EventController {
     @GetMapping("create") // located at /events/create
     public String displayCreateEventForm(Model model) {
         model.addAttribute("title","Create Event");
+        model.addAttribute("event", new Event());
+        model.addAttribute("types", EventType.values()); // enums
         return "events/create"; // do not put file extension
     }
 
     @PostMapping("create") // located at /events/create
-    public String processCreateEventForm(@ModelAttribute Event newEvent) { // model binding
-        EventData.add(newEvent);
+    public String processCreateEventForm(@ModelAttribute @Valid Event newEvent, Errors errors, Model model) { // model binding - encapsulation of all attributes
+        if(errors.hasErrors()) {
+            model.addAttribute("title","Create Event");
+//            model.addAttribute("errorMsg","Bad data!");
+            return "events/create"; // do not put file extension
+        }
+        EventData.add(newEvent); // add to data layer (ArrayList)
         return "redirect:";
     }
 
@@ -46,7 +56,6 @@ public class EventController {
                 EventData.remove(id);
             }
         }
-
         return "redirect:";
     }
 
