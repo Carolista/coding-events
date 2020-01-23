@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+// will no longer use this once EventRepository is set up and linked to SQL
+
 public class EventData {
 
     // Need a place to put events
