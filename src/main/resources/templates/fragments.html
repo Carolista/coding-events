@@ -18,5 +18,13 @@
     </ul>
 </nav>
 
+<nav th:fragment="header-cat">
+    <h1 th:text="${title}">Coding Events</h1>
+    <ul class="nav">
+        <li class="nav-item"><a class="nav-link" href="/eventCategories">All Event Categories</a></li>
+        <li class="nav-item"><a class="nav-link" href="/eventCategories/create">Create Event Category</a></li>
+    </ul>
+</nav>
+
 </body>
 </html>

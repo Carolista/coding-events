@@ -31,6 +31,8 @@ public class Event {
 
     private EventType type;
 
+    public Event() {}
+
     public Event(String name, String description, String contactEmail, EventType type) {
         this.name = name;
         this.description = description;
@@ -38,7 +40,10 @@ public class Event {
         this.type = type;
     }
 
-    public Event() {}
+
+    public int getId() {
+        return id;
+    }
 
     public String getName() {
         return name;
@@ -70,10 +75,6 @@ public class Event {
 
     public void setType(EventType type) {
         this.type = type;
-    }
-
-    public int getId() {
-        return id;
     }
 
     @Override
