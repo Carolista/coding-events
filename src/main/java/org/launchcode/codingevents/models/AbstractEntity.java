@@ -6,7 +6,7 @@ import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import java.util.Objects;
 
-@MappedSuperclass
+@MappedSuperclass // this ensures the fields will be pushed into the tables of the child classes
 public abstract class AbstractEntity {
 
     @Id
