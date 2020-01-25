@@ -44,6 +44,7 @@ public class EventController {
                                          Errors errors, Model model) {
         if(errors.hasErrors()) {
             model.addAttribute("title", "Create Event");
+            model.addAttribute("categories", eventCategoryRepository.findAll());
             return "events/create";
         }
 
