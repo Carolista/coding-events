@@ -2,14 +2,20 @@ package org.launchcode.codingevents.controllers;
 
 import org.launchcode.codingevents.data.UserRepository;
 import org.launchcode.codingevents.models.User;
+import org.launchcode.codingevents.models.dto.LoginFormDTO;
 import org.launchcode.codingevents.models.dto.RegisterFormDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 import java.util.Optional;
 
 @Controller
@@ -44,5 +50,83 @@ public class AuthenticationController {
         model.addAttribute(new RegisterFormDTO()); // label is registerFormDTO by default
         model.addAttribute("title", "Register");
         return "register";
+    }
+
+    @PostMapping("/register")
+    public String processRegistrationForm(@ModelAttribute @Valid RegisterFormDTO registerFormDTO, Errors errors, HttpServletRequest request, Model model) {
+        // request object is provided by Spring
+
+        if(errors.hasErrors()) {
+            model.addAttribute("title", "Register");
+            return "register";
+        }
+
+        User existingUser = userRepository.findByUsername(registerFormDTO.getUsername());
+
+        if (existingUser != null) {
+            // with the Errors class, you can generate custom errors
+            // the second parameter, errorCode, for importing message from outside file, is required
+            // the third parameter allows for a custom message if outside file doesn't exist
+            errors.rejectValue("username", "username.alreadyexists", "A user with that username already exists.");
+            model.addAttribute("title", "Register");
+            return "register";
+        }
+
+        String password = registerFormDTO.getPassword();
+        String verifyPassword = registerFormDTO.getVerifyPassword();
+        if (!password.equals(verifyPassword)) {
+            errors.rejectValue("password", "passwords.mismatch","Passwords do not match.");
+            model.addAttribute("title", "Register");
+            return "register";
+        }
+
+        User newUser = new User(registerFormDTO.getUsername(), registerFormDTO.getPassword());
+        userRepository.save(newUser);
+        setUserInSession(request.getSession(), newUser);
+
+        return "redirect:";
+    }
+
+    @GetMapping("/login")
+    public String displayLoginForm(Model model) {
+        model.addAttribute(new LoginFormDTO());
+        model.addAttribute("title", "Log In");
+        return "login";
+    }
+
+    @PostMapping("/login")
+    public String processLoginForm(@ModelAttribute @Valid LoginFormDTO loginFormDTO, Errors errors, HttpServletRequest request, Model model) {
+
+        if (errors.hasErrors()) {
+            model.addAttribute("title", "Log In");
+            return "login";
+        }
+
+        User theUser = userRepository.findByUsername(loginFormDTO.getUsername());
+
+        if (theUser == null) {
+            errors.rejectValue("username", "user.invalid", "The given username does not exist.");
+            model.addAttribute("title", "Log In");
+            return "login";
+        }
+
+        // retrieve the submitted password
+        String password = loginFormDTO.getPassword();
+
+        if (!theUser.isMatchingPassword(password)) {
+            errors.rejectValue("password", "password.invalid", "Invalid password.");
+            model.addAttribute("title", "Log In");
+            return "login";
+        }
+
+        setUserInSession(request.getSession(), theUser);
+
+        return "redirect:";
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpServletRequest request) {
+        request.getSession().invalidate();
+        return "redirect:login";
     }
 }
